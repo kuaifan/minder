@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <Minder ref="mind" v-if="content !== null" v-model="content" @saveData="onChange"/>
+        <Minder ref="mind" v-if="content !== null" v-model="content" :read-only="readonly" @saveData="onChange"/>
     </div>
 </template>
 
@@ -23,7 +23,8 @@ Vue.use(Minder)
 export default {
     data() {
         return {
-            content: this.getQueryVariable('type') === 'manual' ? null : {}
+            content: this.getQueryVariable('type') === 'manual' ? null : {},
+            readonly: this.getQueryVariable('readonly') === 'yes'
         }
     },
     mounted() {
@@ -89,9 +90,15 @@ export default {
                 return
             }
             switch (data.action) {
-                case "exportPdf":
-                case "exportPng":
-                    this.$refs.mind?.exportHandle(data.action === 'exportPdf' ? 1 : 0, data.name);
+                case "command":
+                    if (data.command === 'camera') {
+                        data.value = minder.getRoot()
+                    }
+                    this.$refs.mind?.execCommand(data.command, data.value);
+                    break;
+
+                case "export":
+                    this.$refs.mind?.exportHandle(data.type, data.name);
                     break;
 
                 case "setContent":

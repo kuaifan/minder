@@ -21,30 +21,6 @@ export default {
                 return {}
             }
         },
-        AccessKey: {
-            type: String,
-            default: ''
-        },
-        SecretKey: {
-            type: String,
-            default: ''
-        },
-        Domain: {
-            type: String,
-            default: ''
-        },
-        scope: {
-            type: String,
-            default: ''
-        },
-        isImageUpload: {
-            type: Boolean,
-            default: true
-        },
-        saveShow: {
-            type: Boolean,
-            default: true
-        },
         readOnly: {
             type: Boolean,
             default: false
@@ -57,27 +33,24 @@ export default {
     data() {
         return {
             minder: null,
-            isHand: false,
             bakValue: '',
-
-            zoom: 100,
         };
     },
     methods: {
-        execCommand(var1, var2) {
+        execCommand(command, value) {
             if (this.readOnly === true) {
                 this.minder.enable();
                 this.$nextTick(() => {
-                    this.minder.execCommand(var1, var2);
+                    this.minder.execCommand(command, value);
                     this.$nextTick(() => {
                         this.minder.disable();
-                        if (this.isHand) {
+                        if (command === 'Hand') {
                             this.minder.execCommand('Hand');
                         }
                     });
                 });
             } else {
-                this.minder.execCommand(var1, var2);
+                this.minder.execCommand(command, value);
             }
         },
         exportHandle(n, filename) {
@@ -119,7 +92,6 @@ export default {
                     if (this.readOnly === true) {
                         this.minder.disable();
                         this.minder.execCommand('Hand');
-                        this.isHand = true;
                     }
                     this.$emit('minderHandle', this.minder);
                     this.minder.on('contentchange', e => {
@@ -163,9 +135,6 @@ export default {
             },
             deep: true,
             immediate: true
-        },
-        zoom(val) {
-            this.execCommand('Zoom', val)
         }
     }
 };
