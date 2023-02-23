@@ -91,10 +91,13 @@ export default {
             }
             switch (data.action) {
                 case "command":
-                    if (data.command === 'camera') {
-                        data.value = minder.getRoot()
+                    if (data.command === 'goCenter') {
+                        this.$refs.mind?.goCenter()
+                    } else if (data.command === 'removeAllSelected') {
+                        this.$refs.mind?.removeAllSelected()
+                    } else {
+                        this.$refs.mind?.execCommand(data.command, data.value);
                     }
-                    this.$refs.mind?.execCommand(data.command, data.value);
                     break;
 
                 case "export":

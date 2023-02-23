@@ -40,9 +40,9 @@ export default {
         execCommand(command, value) {
             if (this.readOnly === true) {
                 this.minder.enable();
-                this.$nextTick(() => {
+                this.$nextTick(_ => {
                     this.minder.execCommand(command, value);
-                    this.$nextTick(() => {
+                    this.$nextTick(_ => {
                         this.minder.disable();
                     });
                 });
@@ -53,7 +53,7 @@ export default {
         exportHandle(n, filename) {
             filename = filename || (this.value.root.data.text || 'Untitled');
             if (n === 0 || n === 'png') {
-                this.minder.exportData('png').then((content) => {
+                this.minder.exportData('png').then(content => {
                     let element = document.createElement('a');
                     element.setAttribute('href', content);
                     element.setAttribute('download', filename);
@@ -63,16 +63,22 @@ export default {
                     document.body.removeChild(element);
                 });
             } else if (n === 1 || n === 'pdf') {
-                this.minder.exportData('png').then((content) => {
+                this.minder.exportData('png').then(content => {
                     let doc = new JSPDF();
                     doc.addImage(content, 'PNG', 0, 0, 0, 0);
                     doc.save(`${filename}.pdf`);
                 });
             }
         },
+        goCenter() {
+            this.minder?.execCommand("camera", this.minder.getRoot(), 600);
+        },
+        removeAllSelected() {
+            this.minder?.removeAllSelectedNodes();
+        },
         rendData() {
-            this.$nextTick(() => {
-                setTimeout(() => {
+            this.$nextTick(_ => {
+                setTimeout(_ => {
                     if (this.minder !== null) {
                         if (this.bakValue == JSON.stringify(this.value)) {
                             return;
@@ -92,7 +98,7 @@ export default {
                         this.minder.execCommand('Hand');
                     }
                     this.$emit('minderHandle', this.minder);
-                    this.minder.on('contentchange', e => {
+                    this.minder.on('contentchange', _ => {
                         const newJson = this.minder.exportJson();
                         if (this.bakValue == JSON.stringify(newJson)) {
                             return;
