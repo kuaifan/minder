@@ -44,9 +44,6 @@ export default {
                     this.minder.execCommand(command, value);
                     this.$nextTick(() => {
                         this.minder.disable();
-                        if (command === 'Hand') {
-                            this.minder.execCommand('Hand');
-                        }
                     });
                 });
             } else {
@@ -91,7 +88,6 @@ export default {
                     this.minder.importJson(this.value);
                     if (this.readOnly === true) {
                         this.minder.disable();
-                        this.minder.execCommand('Hand');
                     }
                     this.$emit('minderHandle', this.minder);
                     this.minder.on('contentchange', e => {
