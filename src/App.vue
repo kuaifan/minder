@@ -1,28 +1,108 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+    <div id="app">
+        <Minder ref="mind" v-if="content !== null" v-model="content" @saveData="onChange"/>
+    </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
-</script>
-
-<style>
+<style scoped>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 </style>
+
+<script>
+import Vue from 'vue'
+import Minder from './Minder'
+
+Vue.use(Minder)
+
+export default {
+    data() {
+        return {
+            content: this.getQueryVariable('type') === 'manual' ? null : {}
+        }
+    },
+    mounted() {
+        this.postMessage({
+            app: 'minder',
+            action: 'ready',
+        })
+        window.addEventListener('message', this.handleMessage)
+    },
+    beforeDestroy() {
+        window.removeEventListener('message', this.handleMessage)
+    },
+    watch: {
+        content() {
+            this.onChange()
+        }
+    },
+    methods: {
+        isJson(obj) {
+            return typeof (obj) == "object" && Object.prototype.toString.call(obj).toLowerCase() === "[object object]" && typeof obj.length == "undefined";
+        },
+
+        jsonParse(str, defaultVal = undefined) {
+            if (str === null) {
+                return defaultVal ? defaultVal : {};
+            }
+            if (typeof str === "object") {
+                return str;
+            }
+            try {
+                return JSON.parse(str.replace(/\n/g, "\\n").replace(/\r/g, "\\r"));
+            } catch (e) {
+                return defaultVal ? defaultVal : {};
+            }
+        },
+
+        getQueryVariable(variable) {
+            let query = window.location.search.substring(1);
+            let vars = query.split("&");
+            for (let i = 0; i < vars.length; i++) {
+                let pair = vars[i].split("=");
+                if (pair[0] === variable) {
+                    return pair[1];
+                }
+            }
+            return null;
+        },
+
+        onChange() {
+            this.postMessage({
+                app: 'minder',
+                action: 'content',
+                content: this.content
+            })
+        },
+
+        postMessage(message, targetOrigin = "*") {
+            window.parent?.postMessage(message, targetOrigin);
+        },
+
+        handleMessage({data}) {
+            if (!this.isJson(data) || data.app !== 'minder') {
+                return
+            }
+            switch (data.action) {
+                case "exportPdf":
+                case "exportPng":
+                    this.$refs.mind?.exportHandle(data.action === 'exportPdf' ? 1 : 0, data.name);
+                    break;
+
+                case "setContent":
+                    this.content = this.isJson(data.content) ? data.content : this.jsonParse(data.content)
+                    break;
+
+                case "postContent":
+                    this.onChange()
+                    break;
+            }
+        }
+    }
+}
+</script>

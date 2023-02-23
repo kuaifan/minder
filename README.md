@@ -1,24 +1,20 @@
 # minder
 
 ## Project setup
-```
+```bash
 yarn install
 ```
 
 ### Compiles and hot-reloads for development
-```
+```bash
 yarn serve
 ```
 
 ### Compiles and minifies for production
-```
+```bash
+# build
 yarn build
-```
 
-### Lints and fixes files
+# publish to docker
+docker buildx build --platform linux/amd64,linux/arm64 -t kuaifan/minder:latest . --push
 ```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
