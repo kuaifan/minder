@@ -87,7 +87,9 @@ export default {
                     this.bakValue = JSON.stringify(this.value);
                     this.minder.importJson(this.value);
                     if (this.readOnly === true) {
+                        this.minder.removeAllSelectedNodes();
                         this.minder.disable();
+                        this.minder.execCommand('Hand');
                     }
                     this.$emit('minderHandle', this.minder);
                     this.minder.on('contentchange', e => {
