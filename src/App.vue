@@ -33,9 +33,11 @@ export default {
             action: 'ready',
         })
         window.addEventListener('message', this.handleMessage)
+        document.addEventListener('keydown', this.keySave)
     },
     beforeDestroy() {
         window.removeEventListener('message', this.handleMessage)
+        document.removeEventListener('keydown', this.keySave)
     },
     watch: {
         content() {
@@ -112,7 +114,17 @@ export default {
                     this.onChange()
                     break;
             }
-        }
+        },
+
+        keySave(e) {
+            if (e.keyCode === 83 && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                this.postMessage({
+                    app: 'minder',
+                    action: 'save',
+                })
+            }
+        },
     }
 }
 </script>
